@@ -77,6 +77,8 @@ def main():
     print('[Mashup]')
 
     embd_name = f'data/embed/{method}_{org}_{net}_{ndim}'
+
+    node_weights = None
     if args.weight > 0 and args.separate != 0:
         weights = np.zeros(len(network_files))
         for embed_type in [args.embed_type]:
@@ -138,29 +140,8 @@ def main():
             embd_name += f'_mixup{args.mixup}_{args.mixup2}'
             embd_name += f'_gamma{args.gamma}'
             network_files_all = network_pairs_mixup_
-
-        if args.level == 'node':
-            for embed_type in [args.embed_type]:
-                if args.axis > 1:
-                    iters = [0, 1]
-                else:
-                    iters = [args.axis]
-                separate = np.load(
-                    f'data/separate/{net}_{org}_type0_' +
-                    f'{embed_type}{axis}_{args.cluster_method}_' +
-                    f'{args.level}.npy')
-            clus_count = np.ones(len(set(separate)))
-            for i in separate:
-                clus_count[i] += 1
-            clus_count = 1/clus_count + args.ori_weight/len(separate)
-            node_weights = np.array([clus_count[i] for i in separate])[0]
-            print(node_weights)
-        else:
-            node_weights = None
     elif args.separate == '0':
         args.separate = None
-    if args.level != 'node':
-        node_weights = None
 
     print('mixup', args.mixup)
     if args.mixup < 0:
@@ -179,34 +160,7 @@ def main():
         rwr = 'rwr'
 
     print(embd_name)
-    # print(weights)
-    # print(node_weights)
-
-    # network_files = [network_file.replace(
-    #     'txt', 'npz') for network_file in network_files]
-    # npz_exist = True
-    # for network_file in network_files:
-    #     if npz_exist and not os.path.exists(network_file):
-    #         npz_exist = False
-    #     else:
-    #         pass
     npz_exist = False if mixup == 'average' else True
-    # npz_exist = True if args.npz_exist == 1 else False
-    # net2size_lst = [os.path.getsize(
-    #     network_file)/1000000 for network_file in
-    #     network_files]
-    # net2size_arr = np.array(net2size_lst)
-    # print(net2size_arr.max())
-    # print(net2size_arr.min())
-    # print(net2size_arr.mean())
-    # # net2size = [(-os.path.getsize(
-    # #     network_file)/1000000, network_file) for network_file in
-    # #     network_files]
-    # net2size = zip(net2size_lst, network_files)
-    # net2size = sorted(net2size)
-    # network_files = [net[1] for net in net2size]
-    # network_files = [network_file.replace(
-    #     'npz', 'txt') for network_file in network_files]
     xs = []
     if not os.path.exists(embd_name + '.npy'):
         print(embd_name + '.npy')

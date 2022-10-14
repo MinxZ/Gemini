@@ -12,7 +12,6 @@ from torch.utils.data import (DataLoader, RandomSampler, SubsetRandomSampler,
                               TensorDataset)
 from tqdm import tqdm
 
-from drug.func_pairs import output_pair
 from evaluate_performance import evaluate_performance
 
 np.random.seed(1)

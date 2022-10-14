@@ -21,14 +21,9 @@ Dataset directory structure
             -yeast
 ```
 
-`python net_drug.py`
+`sh data_preprocess.sh`
 
-`python net_GeneMANIA.py`
-
-`python net_mashup.py`
-
-`python anno_goa.py`
-
+`sh main.sh`
 ```
 
 You can put embedding data under data directory and naming it like {method}_{org}_{annotype}_{demision}.npy like gemini_yeast_go_500.npy to run other methods cross-vaidation.

@@ -31,4 +31,3 @@ Gemini is implemented using Python 3.9 on LINUX. Gemini expects torch==1.9.1+cu1
 1. To process all data, run `sh process_data/preprocess.sh`. 
 2. To reproduce all experiment, run `sh gemin/main.sh` (will add notebooks later.)
 3. To reproduce figures from the paper, run `sh figures/plot.sh` (will add notebook later.)
-```

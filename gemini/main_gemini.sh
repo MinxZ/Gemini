@@ -79,7 +79,9 @@ echo $ori_seed
 gamma=0.5
 cluster_method=ap
 separate=35
-embed_type=Qsm4
+od=4
+embed_type_=Qsm
+embed_type=${embed_type_}${od}
 mixup=1
 weight=1
 ori_weight=0.5
@@ -147,7 +149,9 @@ echo $ori_seed
 gamma=0.5
 cluster_method=ap
 separate=35
-embed_type=Qsm4
+od=4
+embed_type_=Qsm
+embed_type=${embed_type_}${od}
 mixup=5
 weight=1
 ori_weight=0.5

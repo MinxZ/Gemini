@@ -10,12 +10,18 @@ Gemini is a novel network integration method that uses memory-efficient high-ord
 |
 | --- data/: store all networks files and representation files.
 |       | --- raw/:
+|           | --- mashup_networks
+|               | --- human: STRING networks for human
+|               | --- yeast: STRING networks for yeast
+|               | --- 10090.protein.links.detailed.v11.5.txt: STRING networks for mouse
+|           | --- goa
+|               | --- GOA_human.csv: GOA annotation for human
+|               | --- GOA_mouse.csv: GOA annotation for mouse
+|               | --- GOA_yeast.csv: GOA annotation for yeast
 |           | --- Saccharomyces_cerevisiae: yeast networks from BioGRID
 |           | --- Home_sapiens: human networks from BioGRID
 |           | --- Mus_musculus: mouse networks from BioGRID
-|           | --- GOA_human.csv: GOA annotation for human
-|           | --- GOA_mouse.csv: GOA annotation for mouse
-|           | --- GOA_yeast.csv: GOA annotation for yeast
+|
 |
 | --- plot/: jupyter notebooks to recreate the figures in the paper. 
 |

@@ -34,6 +34,25 @@ Gemini is a novel network integration method that uses memory-efficient high-ord
 ### System Requirements
 Gemini is implemented using Python 3.9 on LINUX. Gemini expects torch==1.9.1+cu11.1, scipy, numpy, pandas, sklearn, matplotlib, seaborn, and so on. For best performance, Gemini can be run with a GPU and a CPU. However, all experiments can also be run on a CPU. Multi thread is recommended, setting the `--nnum_thread`
 
+## How to download data
+1. Use links following to downloads data to data/raw
+
+### BioGRID human
+https://drive.google.com/file/d/1l4Daft3yQHW-StKuWzPdN257EaWQm9zJ/view?usp=share_link
+
+### BioGRID mouse
+https://drive.google.com/file/d/1z3rGGIrKpa8YmnY2IBaYqbOzTGAlcpK8/view?usp=share_link
+
+### BioGRID yeast
+https://drive.google.com/file/d/1Im3J6gj7jY3_eGSG52Rvw4Oj0i8HoMhf/view?usp=share_link
+
+### GO Annotation
+https://drive.google.com/file/d/1UZW5ZIrmzGkv0_iOU8_CDNJ2PMzEQZ6g/view?usp=share_link
+
+
+2. Use `sh get_data.sh` to downloads other data
+
+
 ## How to use our code
 1. To process all data, run `sh process_data/preprocess.sh`. 
 2. To mimic the papers's results, use `sh gemini/main_gemini.sh`.

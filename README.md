@@ -43,16 +43,16 @@ Gemini is implemented using Python 3.9 on LINUX. Gemini expects torch==1.9.1+cu1
 ## How to download data
 1. Use links following to downloads data to data/raw
 
-### BioGRID human
+BioGRID human:
 https://drive.google.com/file/d/1l4Daft3yQHW-StKuWzPdN257EaWQm9zJ/view?usp=share_link
 
-### BioGRID mouse
+BioGRID mouse: 
 https://drive.google.com/file/d/1z3rGGIrKpa8YmnY2IBaYqbOzTGAlcpK8/view?usp=share_link
 
-### BioGRID yeast
+BioGRID yeast: 
 https://drive.google.com/file/d/1Im3J6gj7jY3_eGSG52Rvw4Oj0i8HoMhf/view?usp=share_link
 
-### GO Annotation
+GO Annotation:
 https://drive.google.com/file/d/1UZW5ZIrmzGkv0_iOU8_CDNJ2PMzEQZ6g/view?usp=share_link
 
 

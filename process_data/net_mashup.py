@@ -6,6 +6,9 @@ import shutil
 
 from tqdm import tqdm
 
+if not os.path.exists('data/networks/'):
+    os.mkdir('data/networks/')
+
 print('read mapping for human genes')
 filename = 'data/raw/aliase/9606.protein.aliases.v11.5.txt'
 alias2string = {}
@@ -15,7 +18,7 @@ with open(filename, 'r') as f:
         alias2string[alias] = string
 
 
-orgs = ['human_match']
+orgs = ['human_match', 'human', 'yeast']
 data_path = 'data/raw/mashup_networks'
 for org in orgs:
     if not os.path.exists(f'data/networks/{org}/'):

@@ -8,6 +8,8 @@ if not os.path.exists('data/log/'):
     os.mkdir('data/log/')
 if not os.path.exists('data/results/'):
     os.mkdir('data/results/')
+if not os.path.exists('data/annotations/'):
+    os.mkdir('data/annotations/')
 
 
 def textread(filename):

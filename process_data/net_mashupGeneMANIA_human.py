@@ -1,6 +1,5 @@
-from func import textread
-
 import pandas as pd
+from func import textread
 from tqdm import tqdm
 
 print('read mapping for human genes')
@@ -16,7 +15,7 @@ org2binomial = {'yeast': 'Saccharomyces_cerevisiae',
                 'mouse': 'Mus_musculus'}
 
 org = 'human'
-net = 'GeneMANIA'
+net = 'mashup'
 
 # for org in ['human_match']:
 # for net in ['mashup']:
@@ -50,7 +49,6 @@ for net in ['mashup', 'GeneMANIA']:
             f.write(f'{gene}\n')
     gene2idx = {gene: idx for idx, gene in enumerate(genes_union)}
     idx2g = {idx: g for idx, g in enumerate(gs)}
-    # idx2gg = {str(idx): g for idx, g in enumerate(gg)}
 
     if net == 'mashup':
         string_nets = ['neighborhood', 'fusion', 'cooccurence',
@@ -98,4 +96,4 @@ for net in ['mashup', 'GeneMANIA']:
         with open(path, 'w') as f:
             for idx, pair in enumerate(zip(seq1, seq2)):
                 f.write(f'{pair[0]} {pair[1]} {seq3[idx]}\n')
-        org = 'human'
+        org = 'human_match' if net == 'mashup' else 'human'

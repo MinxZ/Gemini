@@ -6,6 +6,9 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
+if not os.path.exists('data/networks/'):
+    os.mkdir('data/networks/')
+
 print('read mapping for mouse genes')
 filename = 'data/raw/aliase/10090.protein.aliases.v11.5.txt'
 alias2string = {}
@@ -17,9 +20,8 @@ with open(filename, 'r') as f:
 
 org2binomial = {'yeast': 'Saccharomyces_cerevisiae',
                 'human': 'Homo_sapiens',
-                'mouse': 'Mus_musculus'}
-org2binomial = {
-    'mouse': 'Mus_musculus'}
+                'mouse': 'Mus_musculus'
+                }
 
 for org in org2binomial.keys():
     print(org)

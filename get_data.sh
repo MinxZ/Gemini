@@ -1,5 +1,8 @@
 # mashup STRING data
-cd data/raw/
+cd data/
+mkdir raw
+mkdir results
+cd raw
 mkdir mashup_networks
 cd mashup_networks
 mkdir mashup
@@ -29,3 +32,4 @@ done
 # GOA
 unzip GOA.zip
 mv GOA goa
+cd ../..

@@ -1,3 +1,6 @@
+mkdir data/embed
+mkdir data/separate
+mkdir data/weight
 # fig 3 (3 mashup
 export CUDA_VISIBLE_DEVICES=0
 OPENBLAS_NUM_THREADS=5

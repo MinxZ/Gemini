@@ -5,8 +5,10 @@ num_thread=4
 torch_thread=5
 method=gemini
 model_type=NN
-for org in yeast mouse human_match; do
-    for net in mashup_ex mashup_GeneMANIA_ex GeneMANIA_ex; do
+# for org in yeast mouse human_match; do
+for org in human_match yeast mouse; do
+    for net in mashup_GeneMANIA_ex GeneMANIA_ex mashup_ex; do
+    # for net in mashup_ex mashup_GeneMANIA_ex GeneMANIA_ex; do
         ndim=800
         echo $experiment_name
         experiment_name=${method}_${org}_${net}_${ndim}_${model_type}
@@ -87,7 +89,8 @@ weight=1
 ori_weight=0.5
 level=network
 mixup2=1.0
-for net in GeneMANIA_ex mashup_GeneMANIA_ex mashup_ex; do
+# for net in GeneMANIA_ex mashup_GeneMANIA_ex mashup_ex; do
+for net in mashup_ex GeneMANIA_ex mashup_GeneMANIA_ex; do
     for org in yeast mouse human_match; do
         if [ $org = yeast ]; then
             ndim=200

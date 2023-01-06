@@ -146,6 +146,7 @@ def main():
         args.separate = None
 
     print('mixup', args.mixup)
+    rwr = args.rwr
     if args.mixup < 0:
         mixup = 'average'
         weights = None

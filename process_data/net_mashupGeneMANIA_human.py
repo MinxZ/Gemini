@@ -1,15 +1,6 @@
 import pandas as pd
-# from func import textread
+from func import textread
 from tqdm import tqdm
-
-
-def textread(filename, astype=str):
-    output = []
-    with open(filename, 'r') as f:
-        for line in f.readlines():
-            i = astype(line.strip())
-            output.append(i)
-    return output
 
 print('read mapping for human genes')
 filename = 'data/raw/aliase/9606.protein.aliases.v11.5.txt'

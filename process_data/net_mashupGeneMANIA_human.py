@@ -1,6 +1,15 @@
 import pandas as pd
-from func import textread
+# from func import textread
 from tqdm import tqdm
+
+
+def textread(filename, astype=str):
+    output = []
+    with open(filename, 'r') as f:
+        for line in f.readlines():
+            i = astype(line.strip())
+            output.append(i)
+    return output
 
 print('read mapping for human genes')
 filename = 'data/raw/aliase/9606.protein.aliases.v11.5.txt'
@@ -15,7 +24,7 @@ org2binomial = {'yeast': 'Saccharomyces_cerevisiae',
                 'mouse': 'Mus_musculus'}
 
 org = 'human'
-net = 'mashup'
+net = 'GeneMANIA'
 
 # for org in ['human_match']:
 # for net in ['mashup']:
@@ -31,10 +40,15 @@ for net in ['mashup', 'GeneMANIA']:
 
     idx2gm = {
         idx: alias2string[g] if g in alias2string else g for idx, g in
+        enumerate(gm)}
+    idx2gg = {
+        idx: alias2string[g] if g in alias2string else g for idx, g in
         enumerate(gg)}
-    gg = [alias2string[g] if g in alias2string else g for g in gg]
 
-    gs = gm if net == 'mashup' else gg
+    gg = [alias2string[g] if g in alias2string else g for g in gg]
+    gm = [alias2string[g] if g in alias2string else g for g in gm]
+
+    # gs = gm if net == 'mashup' else gg
     genes_union = sorted(list(set(gm + gg)))
     with open(f'data/networks/{org}/{org}_GeneMANIA_ex_genes.txt',
               'w') as f:
@@ -48,7 +62,7 @@ for net in ['mashup', 'GeneMANIA']:
         for gene in genes_union:
             f.write(f'{gene}\n')
     gene2idx = {gene: idx for idx, gene in enumerate(genes_union)}
-    idx2g = {idx: g for idx, g in enumerate(gs)}
+    # idx2g = {idx: g for idx, g in enumerate(gs)}
 
     if net == 'mashup':
         string_nets = ['neighborhood', 'fusion', 'cooccurence',
@@ -85,11 +99,11 @@ for net in ['mashup', 'GeneMANIA']:
                 seq2.append(int(y))
                 seq3.append(abs(float(n)))
         if net == 'GeneMANIA':
+            seq1 = [gene2idx[idx2gg[gene]] for gene in seq1]
+            seq2 = [gene2idx[idx2gg[gene]] for gene in seq2]
+        else:
             seq1 = [gene2idx[idx2gm[gene]] for gene in seq1]
             seq2 = [gene2idx[idx2gm[gene]] for gene in seq2]
-        else:
-            seq1 = [gene2idx[idx2g[gene]] for gene in seq1]
-            seq2 = [gene2idx[idx2g[gene]] for gene in seq2]
         org = 'human_match'
         path = f'data/networks/{org}/{org}_' +\
             f'string_{string_nets[i]}_gm_adjacency.txt'

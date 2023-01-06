@@ -10,7 +10,6 @@ import time
 
 import numpy as np
 import torch
-
 from func import out_string_nets, textread
 from mashup import load_multi, mashup, mashup_multi
 
@@ -75,6 +74,9 @@ def main():
     start_time = time.time()
     print(f'{method}_{org}_{net}_{ndim}')
     print('[Mashup]')
+
+    if not os.path.exists('data/embed'):
+        os.mkdir('data/embed')
 
     embd_name = f'data/embed/{method}_{org}_{net}_{ndim}'
 

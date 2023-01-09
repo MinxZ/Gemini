@@ -202,6 +202,8 @@ def out_moment_emb(data, idx):
             # print(time.time()-s)
             Q = Q_sparse.todense()
             del(Q_sparse)
+    else:
+        print(f'{sparse_network_file} or {dense_network_file} not exist')
 
     output = []
     for R in [Q]:

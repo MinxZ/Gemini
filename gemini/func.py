@@ -204,6 +204,7 @@ def out_moment_emb(data, idx):
             del(Q_sparse)
     else:
         print(f'{sparse_network_file} or {dense_network_file} not exist')
+        exit()
 
     output = []
     for R in [Q]:

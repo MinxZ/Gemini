@@ -204,7 +204,7 @@ def out_moment_emb(data, idx, use_torch=True):
             Q = Q_sparse.todense()
             del(Q_sparse)
     else:
-        print(f'{sparse_network_file} or {dense_network_file} not exist')
+        print(f'{sparse_network_file} not exists')
         A = load_network(network_file, ngene)
         if use_torch:
             Q = rwr_torch(A, 0.5)

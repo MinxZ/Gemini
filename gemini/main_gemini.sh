@@ -89,8 +89,8 @@ weight=1
 ori_weight=0.5
 level=network
 mixup2=1.0
-# for net in GeneMANIA_ex mashup_GeneMANIA_ex mashup_ex; do
-for net in mashup_ex GeneMANIA_ex mashup_GeneMANIA_ex; do
+for net in GeneMANIA_ex mashup_GeneMANIA_ex mashup_ex; do
+# for net in mashup_ex GeneMANIA_ex mashup_GeneMANIA_ex; do
     for org in yeast mouse human_match; do
         if [ $org = yeast ]; then
             ndim=200

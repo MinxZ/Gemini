@@ -6,7 +6,8 @@ import os
 
 import numpy as np
 import pandas as pd
-from scipy.sparse import load_npz
+from rwr_func import rwr, rwr_torch
+from scipy.sparse import csr_matrix, load_npz, save_npz
 from scipy.stats import moment
 
 
@@ -182,7 +183,7 @@ def min_max(x):
 
 
 
-def out_moment_emb(data, idx):
+def out_moment_emb(data, idx, use_torch=True):
     network_files, average_type, ngene = data
     network_file = network_files[idx]
 
@@ -204,7 +205,14 @@ def out_moment_emb(data, idx):
             del(Q_sparse)
     else:
         print(f'{sparse_network_file} or {dense_network_file} not exist')
-        exit()
+        A = load_network(network_file, ngene)
+        if use_torch:
+            Q = rwr_torch(A, 0.5)
+        else:
+            Q = rwr(A, 0.5)
+        Q_sparse = csr_matrix(Q)
+        save_npz(sparse_network_file, Q_sparse)
+        del(A)
 
     output = []
     for R in [Q]:

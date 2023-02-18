@@ -137,3 +137,5 @@ data/log
 data/networks
 data/results
 data/raw/*
+data/embed
+data/separate

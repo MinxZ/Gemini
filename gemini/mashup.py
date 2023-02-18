@@ -18,6 +18,7 @@ from joblib import Parallel, delayed
 from load_anno_vali import load_anno
 from rwr_func import rwr, rwr_torch
 from scipy.sparse import csr_matrix, load_npz, save_npz
+from scipy.sparse.linalg import eigsh, svds
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 
@@ -32,12 +33,20 @@ def network_svd(ndim, torch_thread, RR_sum, verbose=1):
     if verbose == 1:
         print('All networks loaded. Learning vectors via SVD...\n')
     torch.manual_seed(1)
-    d, V = torch.linalg.eigh(torch.Tensor(RR_sum))
-    del(RR_sum)
-    V = V.numpy()[:, ::-1][:, :ndim]
-    d = d.numpy()[::-1][:ndim]
-    x = np.diag(np.sqrt(np.sqrt(d))).dot(V.T)
-    del(d, V)
+    try:
+        d, V = torch.linalg.eigh(torch.Tensor(RR_sum))
+        del(RR_sum)
+        V = V.numpy()[:, ::-1][:, :ndim]
+        d = d.numpy()[::-1][:ndim]
+        x = np.diag(np.sqrt(np.sqrt(d))).dot(V.T)
+        del(d, V)
+    except:
+        d, V = eigsh(RR_sum, k=ndim)
+        del(RR_sum)
+        V = V[:, ::-1]
+        d = d[::-1]
+        x = np.diag(np.sqrt(np.sqrt(d))).dot(np.transpose(V))
+
     if verbose == 1:
         print(time.time()-s)
         print('Mashup features obtained.\n')
@@ -218,7 +227,7 @@ def load_and_rwr_weight(ngene, torch_thread, node_weights, network_file):
 
 
 def mashup(network_files=None, ngene=None, ndim=None, mixup=None,
-           torch_thread=12, weights=None, separate=None):
+           torch_thread=12, weights=None, separate=None, device=None):
     s = time.time()
     torch.manual_seed(1)
     torch.set_num_threads(torch_thread)
@@ -226,9 +235,13 @@ def mashup(network_files=None, ngene=None, ndim=None, mixup=None,
     np.random.seed(1)
     s = time.time()
     # RR_sum = np.zeros((ngene, ngene))
-    RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device == torch.device('cuda'):
+        RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
+    else:
+        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0)
     i = 0
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # print('devise', time.time()-s)
     # Q = torch.from_numpy(Q).to(device)
     weights = np.ones(len(network_files)) if weights is None else weights
@@ -298,7 +311,15 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
                  weights=None, separate=None, node_weights=None,
                  rwr='rwr', device=None):
     weights_ = np.ones(len(network_files)) if weights is None else weights
-    RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device == torch.device('cuda'):
+        RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
+    elif device == torch.device('cpu'):
+        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0)
+    elif device == torch.device('mps'):
+        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0).to(device)
+
     max_len = len(network_files)
     max_idx = max_len//num_thread
     max_idx = max_idx+1 if max_len % num_thread > 0 else max_idx
@@ -340,8 +361,6 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
             RR_sums = [RR_sums[idx]*current_weights[idx]
                        for idx in range(len(RR_sums))]
         # print(len(RR_sums))
-        if device is None:
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         if separate is None:
             if mixup == 'average':
                 for idx, Q in enumerate(RR_sums):
@@ -380,9 +399,7 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
 
     if separate is None:
         RR_sum = RR_sum.cpu().numpy()
-        if rwr == 'rwr':
-            x = network_svd(ndim, num_thread*torch_thread, RR_sum)
-        elif 'svd' in rwr:
+        if rwr == 'rwr' or 'svd' in rwr:
             x = network_svd(ndim, num_thread*torch_thread, RR_sum)
         elif 'pca' in rwr:
             pca = PCA(n_components=ndim)
@@ -408,7 +425,14 @@ def load_multi(network_files=None, ngene=None, ndim=None,
     np.random.seed(1)
     random.seed(1)
     weights_ = np.ones(len(network_files)) if weights is None else weights
-    RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
+    if device == torch.device(
+            'cuda'):
+        RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
+    elif device == torch.device('cpu'):
+        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0)
+    elif device == torch.device('mps'):
+        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0).to(device)
+
     max_len = len(network_files)
     max_idx = max_len//num_thread
     max_idx = max_idx+1 if max_len % num_thread > 0 else max_idx

@@ -236,11 +236,21 @@ def mashup(network_files=None, ngene=None, ndim=None, mixup=None,
     s = time.time()
     # RR_sum = np.zeros((ngene, ngene))
     if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if torch.backends.mps.is_available():
+            device = torch.device('mps')
+        elif torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
+    elif type(device) == str:
+        device = torch.device(device)
+
     if device == torch.device('cuda'):
         RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
-    else:
+    elif device == torch.device('cpu'):
         RR_sum = torch.FloatTensor(ngene, ngene).fill_(0)
+    elif device == torch.device('mps'):
+        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0).to(device)
     i = 0
     # print('devise', time.time()-s)
     # Q = torch.from_numpy(Q).to(device)
@@ -282,7 +292,14 @@ def mashup_vali(org, net, network_files, ngene=None,
     random.seed(1)
     np.random.seed(1)
     if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if torch.backends.mps.is_available():
+            device = torch.device('mps')
+        elif torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
+    elif type(device) == str:
+        device = torch.device(device)
 
     # Load gene list
     anno = load_anno(org, net)
@@ -312,7 +329,15 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
                  rwr='rwr', device=None):
     weights_ = np.ones(len(network_files)) if weights is None else weights
     if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if torch.backends.mps.is_available():
+            device = torch.device('mps')
+        elif torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
+    elif type(device) == str:
+        device = torch.device(device)
+
     if device == torch.device('cuda'):
         RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
     elif device == torch.device('cpu'):
@@ -415,8 +440,14 @@ def load_multi(network_files=None, ngene=None, ndim=None,
                weights=None, separate=None, node_weights=None, gamma=None,
                 device=None):
     if device is None:
-        device = torch.device(
-            'cuda' if torch.cuda.is_available() else 'cpu')
+        if torch.backends.mps.is_available():
+            device = torch.device('mps')
+        elif torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
+    elif type(device) == str:
+        device = torch.device(device)
 
     print('load multi')
     s = time.time()
@@ -425,8 +456,7 @@ def load_multi(network_files=None, ngene=None, ndim=None,
     np.random.seed(1)
     random.seed(1)
     weights_ = np.ones(len(network_files)) if weights is None else weights
-    if device == torch.device(
-            'cuda'):
+    if device == torch.device('cuda'):
         RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
     elif device == torch.device('cpu'):
         RR_sum = torch.FloatTensor(ngene, ngene).fill_(0)

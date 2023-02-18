@@ -5,14 +5,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from evaluate_performance import evaluate_performance
 from scipy import stats
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold, train_test_split
 from torch.utils.data import (DataLoader, RandomSampler, SubsetRandomSampler,
                               TensorDataset)
 from tqdm import tqdm
-
-from evaluate_performance import evaluate_performance
 
 np.random.seed(1)
 torch.manual_seed(1)
@@ -98,213 +97,12 @@ def print_log(epoch, current_loss, val_loss,
     print()
 
 
-def cross_validation_nn_pairs(x, nperm, batch_size,
-                              ratio, target_pair_drugs, drug2embd, data3,
-                              best_epoch_=None):
-    # Scale features
-    torch.manual_seed(1)
-    maxval = np.expand_dims(np.max(x, axis=1), axis=1)
-    minval = np.expand_dims(np.min(x, axis=1), axis=1)
-    x = (x - minval) * (1 / (maxval - minval))
-    x = x.T
-
-    acc = np.zeros((nperm, 1))
-    f1 = np.zeros((nperm, 1))
-    aupr = np.zeros((nperm, 1))
-    roc = np.zeros((nperm, 1))
-    drugs = list(drug2embd.keys())
-
-    nclass = 1
-    num_epochs = 10000
-    max_no_optim_epoch = 200
-    net_arch = (200, 100)
-    drugs = np.array(sorted(list(drug2embd.keys())))
-    nperm = 5
-    kf = KFold(n_splits=nperm, random_state=1, shuffle=True)
-    # for fold, (test_drugs_ids, train_drugs_full_ids) in \
-    for fold, (train_drugs_full_ids, test_drugs_ids) in \
-            enumerate(kf.split(drugs)):
-        # idxx = 0
-        # for fold in range(nperm):
-        #     kf = KFold(n_splits=3, random_state=fold, shuffle=True)
-        #     for _, (test_drugs_ids, train_drugs_full_ids) in \
-        #             enumerate(kf.split(drugs)):
-        #         idxx += 1
-        torch.manual_seed(1)
-        train_drugs_full = drugs[train_drugs_full_ids]
-        test_drugs = drugs[test_drugs_ids]
-        train_drugs_ids, validation_drugs_ids = train_test_split(
-            train_drugs_full_ids, test_size=ratio, random_state=1)
-        train_drugs = drugs[train_drugs_ids]
-        validation_drugs = drugs[validation_drugs_ids]
-        X_train, Y_train = output_pair(
-            target_pair_drugs, drug2embd, data3, train_drugs)
-        X_train_full, Y_train_full = output_pair(
-            target_pair_drugs, drug2embd, data3, train_drugs_full)
-        X_validation, Y_validation = output_pair(
-            target_pair_drugs, drug2embd, data3, validation_drugs)
-        X_test, Y_test = output_pair(
-            target_pair_drugs, drug2embd, data3, test_drugs)
-
-        tensor_x_train = torch.Tensor(X_train).to(device)
-        tensor_y_train = torch.Tensor(Y_train).to(device)
-        dataset_train = TensorDataset(
-            tensor_x_train, tensor_y_train)
-        tensor_x_train_full = torch.Tensor(X_train_full).to(device)
-        tensor_y_train_full = torch.Tensor(Y_train_full).to(device)
-        dataset_train_full = TensorDataset(
-            tensor_x_train_full, tensor_y_train_full)
-        tensor_x_validation = torch.Tensor(X_validation).to(device)
-        tensor_y_validation = torch.Tensor(Y_validation).to(device)
-        dataset_validation = TensorDataset(
-            tensor_x_validation, tensor_y_validation)
-        tensor_x_test = torch.Tensor(X_test).to(device)
-        tensor_y_test = torch.Tensor(Y_test).to(device)
-        dataset_test = TensorDataset(tensor_x_test, tensor_y_test)
-
-        train_subsampler = RandomSampler(dataset_train)
-        train_subsampler_full = RandomSampler(dataset_train_full)
-        validation_subsampler = RandomSampler(dataset_validation)
-        test_subsampler = RandomSampler(dataset_test)
-
-        g = torch.Generator()
-        g.manual_seed(1)
-        trainloader = DataLoader(
-            dataset_train, generator=g,
-            batch_size=batch_size, sampler=train_subsampler)
-        trainloader_full = DataLoader(
-            dataset_train_full, generator=g,
-            batch_size=batch_size, sampler=train_subsampler_full)
-        validationloader = DataLoader(
-            dataset_validation, generator=g,
-            batch_size=X_validation.shape[0], sampler=validation_subsampler)
-        testloader = DataLoader(
-            dataset_test, generator=g,
-            batch_size=X_test.shape[0], sampler=test_subsampler)
-
-        best_val_loss = np.inf
-        no_optim_epoch = 0
-        model = Net(X_train.shape[1], net_arch, nclass).to(device)
-        loss_function = nn.BCEWithLogitsLoss()
-        optimizer = torch.optim.Adam(model.parameters())
-        # Print
-        start_time = time.time()
-        print(f'FOLD {fold}')
-        print('--------------------------------')
-        # best_epoch = 1
-        best_epoch = best_epoch_
-        if best_epoch is None:
-            for epoch in range(num_epochs):
-                # Set current loss value
-                current_loss = 0.0
-                # Iterate over the DataLoader for training data
-                for i, data in enumerate(trainloader, 0):
-                    # Get inputs
-                    inputs, targets = data
-                    # Zero the gradients
-                    optimizer.zero_grad()
-                    # Perform forward pass
-                    outputs = model(inputs)
-
-                    # Compute loss
-                    loss = loss_function(outputs, targets)
-                    # Perform backward pass
-                    loss.backward()
-                    # Perform optimization
-                    optimizer.step()
-                    # Print statistics
-                    current_loss += loss.item()
-                with torch.no_grad():
-                    # Iterate over the test data and generate predictions
-                    for idx, data in enumerate(validationloader, 0):
-                        # Get inputs
-                        inputs, targets = data
-                        outputs = model(inputs)
-                        val_loss = loss_function(outputs, targets)
-                if val_loss < best_val_loss:
-                    best_val_loss = float(val_loss.cpu().numpy().copy())
-                    best_epoch = epoch
-                    no_optim_epoch = 0
-                else:
-                    no_optim_epoch += 1
-                if epoch % 10 == 9:
-                    print_log(epoch, current_loss, val_loss,
-                              best_epoch, no_optim_epoch, best_val_loss)
-                if no_optim_epoch >= max_no_optim_epoch:
-                    break
-
-            print(
-                f'Epoch {epoch+1}:')
-            print(
-                f'Train loss {current_loss/(i+1):.6f} Val loss {val_loss:.6f}')
-            print(
-                f'Best epoch: {best_epoch:3d} no_optim: {no_optim_epoch:2d}')
-
-        model_full = Net(X_train.shape[1], net_arch, nclass).to(device)
-        loss_function = nn.BCEWithLogitsLoss()
-        optimizer = torch.optim.Adam(model_full.parameters())
-        for epoch in tqdm(range(best_epoch)):
-            # Set current loss value
-            current_loss = 0.0
-            # Iterate over the DataLoader for training data
-            for i, data in enumerate(trainloader_full, 0):
-                # Get inputs
-                inputs, targets = data
-                # Zero the gradients
-                optimizer.zero_grad()
-                # Perform forward pass
-                outputs = model_full(inputs)
-
-                # Compute loss
-                loss = loss_function(outputs, targets)
-                # Perform backward pass
-                loss.backward()
-                # Perform optimization
-                optimizer.step()
-
-            # Process is complete.
-
-        # print('Training process has finished. Saving trained model.')
-        print('Training process has finished.')
-        # Print about testing
-        print('Starting testing')
-        # Saving the model
-        # save_path = f'./model-fold-{fold}.pth'
-        # torch.save(model.state_dict(), save_path)
-        # Evaluationfor this fold
-        with torch.no_grad():
-            # Iterate over the test data and generate predictions
-            for i, data in enumerate(testloader, 0):
-                # Get inputs
-                inputs, targets = data
-                # Generate outputs
-                # class_score = model(inputs)
-                class_score_full = model_full(inputs)
-
-        # class_score = class_score.cpu().numpy()
-        class_score_full = class_score_full.cpu().numpy()
-        label = targets.cpu().numpy()
-        # Print accuracy
-        # acc[fold], f1[fold], aupr[fold], roc[fold] = evaluate_performance(
-        #     class_score, label, alpha=alpha)
-        # print('[Trial #%d] acc: %f, f1: %f, auprc: %f, MAPRC: %f\n' %
-        #       (fold+1, acc[fold], f1[fold], aupr[fold], roc[fold]))
-        acc[fold], f1[fold], aupr[fold], roc[fold] = evaluate_performance(
-            class_score_full, label, alpha=1)
-
-        print('[Trial #%d] acc: %f, f1: %f, auprc: %f, MAPRC: %f\n' %
-              (fold+1, acc[fold], f1[fold], aupr[fold], roc[fold]))
-        end_time = time.time()
-        print(f'Time: {end_time-start_time}\n')
-    return acc, f1, aupr, roc
-
-
 def cross_validation_nn(x, anno, nperm, batch_size=128,
                         alpha=3, ratio=0.2, best_epoch_=None,
                         task_type='classification', NN_stru=(200, 100),
                         train_test_ids=None, train_val_ids=None,
                         return_pred=False, max_no_optim_epoch=50,
-                        train_on_full=False
+                        train_on_full=False, device=None
                         ):
     # Scale features
     torch.manual_seed(1)

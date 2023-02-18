@@ -6,7 +6,6 @@ import argparse
 import random
 
 import numpy as np
-
 from load_anno_vali import load_anno_and_cross_validation
 
 
@@ -33,6 +32,8 @@ def get_args():
                         default=0)
     parser.add_argument('--seed', type=int,
                         default=-1)
+    parser.add_argument('--device', type=str,
+                        default='')
     return parser.parse_args()
 
 
@@ -73,8 +74,9 @@ def main():
             xs.append(x[i*base:i*base+args.ndim, :])
         x = np.concatenate(xs, axis=0)
     print(x.shape)
+    device = None if args.device == '' else args.device
     load_anno_and_cross_validation(model_type, org, net, experiment_name,
-                                   x, ratio, best_epoch)
+                                   x, ratio, best_epoch, device=device)
 
 
 if __name__ == '__main__':

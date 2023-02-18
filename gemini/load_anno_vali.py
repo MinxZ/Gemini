@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-
+import torch
 from cross_validation_nn import cross_validation_nn
 from func import load_go, textread
 
@@ -19,7 +19,7 @@ def load_anno(org, net):
 
 
 def load_anno_and_cross_validation(model_type, org, net, experiment_name,
-                                   x, ratio, best_epoch, batch_size=128):
+                                   x, ratio, best_epoch, batch_size=128, device=None):
     """
     params:
     model_type: SVM or SVR, NN, recommend NN
@@ -29,6 +29,17 @@ def load_anno_and_cross_validation(model_type, org, net, experiment_name,
     num_thread: 0 means using all thread
     ratio: default 0.2, test data ratio
     """
+    if device is None:
+        if torch.backends.mps.is_available():
+            device = torch.device('mps')
+        elif torch.cuda.is_available():
+            device = torch.device('cuda')
+        else:
+            device = torch.device('cpu')
+    elif type(device) == str:
+        device = torch.device(device)
+
+
     if not os.path.exists('data/results/'):
         os.mkdir('data/results/')
     if not os.path.exists('data/results/raw'):
@@ -61,7 +72,8 @@ def load_anno_and_cross_validation(model_type, org, net, experiment_name,
             cross_validation_nn(
                 x, anno, nperm, batch_size=batch_size,
                 alpha=alpha, ratio=ratio,
-                best_epoch_=best_epoch, return_pred=True)
+                best_epoch_=best_epoch, return_pred=True,
+                device=device)
 
         np.save(f'data/results/raw/{experiment_name}_pred',
                 np.concatenate(preds, axis=0))

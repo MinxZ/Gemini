@@ -34,7 +34,7 @@ def rwr(A=None, restart_prob=None):
 
 
 def rwr_torch_iterative(A=None, restart_prob=None, delta_=1e-3, max_iter=10,
-               verbal=True):
+               verbal=True, device=None):
     torch.manual_seed(1)
     nnode, nfeat = A.shape
     for i in range(nnode):
@@ -45,7 +45,8 @@ def rwr_torch_iterative(A=None, restart_prob=None, delta_=1e-3, max_iter=10,
             A[i, :] = 1. / nfeat
     # print(np.shape(A))
     # device = torch.device("cuda:0")
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # print(device)
     nnode = A.shape[0]
     reset = np.eye(nnode)

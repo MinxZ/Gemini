@@ -12,15 +12,14 @@ from multiprocessing import Pool
 
 import numpy as np
 import torch
+from cross_validation_nn import validation_nn_output
+from func import load_network
 from joblib import Parallel, delayed
+from load_anno_vali import load_anno
+from rwr_func import rwr, rwr_torch
 from scipy.sparse import csr_matrix, load_npz, save_npz
 from sklearn.decomposition import PCA
 from tqdm import tqdm
-
-from cross_validation_nn import validation_nn_output
-from func import load_network
-from load_anno_vali import load_anno
-from rwr_func import rwr, rwr_torch
 
 random.seed(1)
 torch.manual_seed(1)
@@ -263,12 +262,14 @@ def mashup(network_files=None, ngene=None, ndim=None, mixup=None,
 
 
 def mashup_vali(org, net, network_files, ngene=None,
-                best_epoch=100, torch_thread=12, ndim=None):
+                best_epoch=100, torch_thread=12, ndim=None,
+                device=None):
     torch.manual_seed(1)
     torch.set_num_threads(torch_thread)
     random.seed(1)
     np.random.seed(1)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load gene list
     anno = load_anno(org, net)
@@ -295,7 +296,7 @@ def mashup_vali(org, net, network_files, ngene=None,
 def mashup_multi(network_files=None, ngene=None, ndim=None,
                  mixup=None, num_thread=5, torch_thread=4,
                  weights=None, separate=None, node_weights=None,
-                 rwr='rwr'):
+                 rwr='rwr', device=None):
     weights_ = np.ones(len(network_files)) if weights is None else weights
     RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
     max_len = len(network_files)
@@ -339,7 +340,8 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
             RR_sums = [RR_sums[idx]*current_weights[idx]
                        for idx in range(len(RR_sums))]
         # print(len(RR_sums))
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if device is None:
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         if separate is None:
             if mixup == 'average':
                 for idx, Q in enumerate(RR_sums):
@@ -393,7 +395,12 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
 
 def load_multi(network_files=None, ngene=None, ndim=None,
                mixup=None, num_thread=5, torch_thread=4,
-               weights=None, separate=None, node_weights=None, gamma=None):
+               weights=None, separate=None, node_weights=None, gamma=None,
+                device=None):
+    if device is None:
+        device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'cpu')
+
     print('load multi')
     s = time.time()
     torch.set_num_threads(torch_thread)
@@ -439,8 +446,6 @@ def load_multi(network_files=None, ngene=None, ndim=None,
             for current_network in current_networks:
                 Qs.append(f(current_network))
 
-        device = torch.device(
-            'cuda' if torch.cuda.is_available() else 'cpu')
         # print('devise', time.time()-s)
         RR_sums = []
         # s = time.time()

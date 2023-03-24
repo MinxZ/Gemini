@@ -12,9 +12,13 @@ from multiprocessing import Pool
 import numpy as np
 import torch
 from tqdm import tqdm
+import json
 
-from func import out_moment_emb, out_string_nets, textread
-from mashup import mashup_multi
+import sys
+sys.path.append(os.path.join(sys.path[0], '../'))
+from config import GEMINI_DIR
+from gemini.func import out_moment_emb, out_string_nets, textread
+from gemini.mashup import mashup_multi
 
 
 def get_args():
@@ -56,14 +60,13 @@ def main():
     string_nets = out_string_nets(net, org)
 
     # Load gene list
-    gene_file = f'data/networks/{org}/{org}_{net}_genes.txt'
+    gene_file = GEMINI_DIR +  f'data/networks/{org}/{org}_{net}_genes.txt'
     genes = textread(gene_file)
-    ngene = len(genes)
-
     network_files = []
     for i in range(len(string_nets)):
         network_files.append(
-            f'data/networks/{org}/{org}_string_{string_nets[i]}_adjacency.txt')
+            GEMINI_DIR +  f'data/networks/{org}/{org}_string_{string_nets[i]}_adjacency.txt')
+    ngene = len(genes)
 
     num_net = len(network_files)
     print(num_net)
@@ -72,7 +75,7 @@ def main():
     # 1 averaged on log rwr
     # compute cluster
     embeds = []
-    embed_name = f'data/embed/{net}_{org}_type{average_type}_' + \
+    embed_name = GEMINI_DIR + f'data/embed/{net}_{org}_type{average_type}_' + \
         f'{args.embed_type}{args.axis}_{args.level}.npy'
 
     if os.path.exists(
@@ -124,10 +127,10 @@ def main():
                         c = np.array([embeds[i][i_]
                                       for i in range(len(embeds))])
                         np.save(
-                            f'data/embed/{net}_{org}_type{average_type}_' +
+                            GEMINI_DIR + f'data/embed/{net}_{org}_type{average_type}_' +
                             f'{embed_type}{axis}_{args.level}', c)
     c = np.load(
-        f'data/embed/{net}_{org}_type{average_type}_' +
+        GEMINI_DIR + f'data/embed/{net}_{org}_type{average_type}_' +
         f'{args.embed_type}{args.axis}_{args.level}.npy')
     c = c[:len(network_files)]
     print(c.shape)
@@ -241,10 +244,10 @@ def main():
     num2i = {num: i for i, num in enumerate(list(set(separate)))}
     separate = [num2i[num] for num in separate]
 
-    if not os.path.exists('data/separate'):
-        os.mkdir('data/separate')
+    if not os.path.exists(GEMINI_DIR + 'data/separate'):
+        os.mkdir(GEMINI_DIR + 'data/separate')
     np.save(
-        f'data/separate/{net}_{org}_type{average_type}_' +
+        GEMINI_DIR + f'data/separate/{net}_{org}_type{average_type}_' +
         f'{args.embed_type}{args.axis}_{cluster}_{args.level}',
         separate)
 

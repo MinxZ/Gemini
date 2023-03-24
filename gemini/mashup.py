@@ -5,6 +5,7 @@
 ##
 
 import os
+import sys
 import random
 import time
 from functools import partial
@@ -12,11 +13,13 @@ from multiprocessing import Pool
 
 import numpy as np
 import torch
-from cross_validation_nn import validation_nn_output
-from func import load_network
+
+sys.path.append(os.path.join(sys.path[0], '../'))
+from gemini.cross_validation_nn import validation_nn_output
+from gemini.func import load_network
 from joblib import Parallel, delayed
-from load_anno_vali import load_anno
-from rwr_func import rwr, rwr_torch
+from gemini.load_anno_vali import load_anno
+from gemini.rwr_func import rwr, rwr_torch
 from scipy.sparse import csr_matrix, load_npz, save_npz
 from scipy.sparse.linalg import eigsh, svds
 from sklearn.decomposition import PCA
@@ -236,9 +239,9 @@ def mashup(network_files=None, ngene=None, ndim=None, mixup=None,
     s = time.time()
     # RR_sum = np.zeros((ngene, ngene))
     if device is None:
-        if torch.backends.mps.is_available():
-            device = torch.device('mps')
-        elif torch.cuda.is_available():
+#         if torch.backends.mps.is_available():
+#             device = torch.device('mps')
+        if torch.cuda.is_available():
             device = torch.device('cuda')
         else:
             device = torch.device('cpu')
@@ -249,8 +252,8 @@ def mashup(network_files=None, ngene=None, ndim=None, mixup=None,
         RR_sum = torch.cuda.FloatTensor(ngene, ngene).fill_(0)
     elif device == torch.device('cpu'):
         RR_sum = torch.FloatTensor(ngene, ngene).fill_(0)
-    elif device == torch.device('mps'):
-        RR_sum = torch.FloatTensor(ngene, ngene).fill_(0).to(device)
+#     elif device == torch.device('mps'):
+#         RR_sum = torch.FloatTensor(ngene, ngene).fill_(0).to(device)
     i = 0
     # print('devise', time.time()-s)
     # Q = torch.from_numpy(Q).to(device)
@@ -292,9 +295,9 @@ def mashup_vali(org, net, network_files, ngene=None,
     random.seed(1)
     np.random.seed(1)
     if device is None:
-        if torch.backends.mps.is_available():
-            device = torch.device('mps')
-        elif torch.cuda.is_available():
+#         if torch.backends.mps.is_available():
+#             device = torch.device('mps')
+        if torch.cuda.is_available():
             device = torch.device('cuda')
         else:
             device = torch.device('cpu')
@@ -329,9 +332,9 @@ def mashup_multi(network_files=None, ngene=None, ndim=None,
                  rwr='rwr', device=None):
     weights_ = np.ones(len(network_files)) if weights is None else weights
     if device is None:
-        if torch.backends.mps.is_available():
-            device = torch.device('mps')
-        elif torch.cuda.is_available():
+#         if torch.backends.mps.is_available():
+#             device = torch.device('mps')
+        if torch.cuda.is_available():
             device = torch.device('cuda')
         else:
             device = torch.device('cpu')
@@ -440,9 +443,9 @@ def load_multi(network_files=None, ngene=None, ndim=None,
                weights=None, separate=None, node_weights=None, gamma=None,
                 device=None):
     if device is None:
-        if torch.backends.mps.is_available():
-            device = torch.device('mps')
-        elif torch.cuda.is_available():
+#         if torch.backends.mps.is_available():
+#             device = torch.device('mps')
+        if torch.cuda.is_available():
             device = torch.device('cuda')
         else:
             device = torch.device('cpu')

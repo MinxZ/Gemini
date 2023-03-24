@@ -3,10 +3,14 @@ Mingxin Zhang
 Help functions
 """
 import os
+import sys
 
+sys.path.append(os.path.join(sys.path[0], '../'))
+from config import GEMINI_DIR
 import numpy as np
 import pandas as pd
-from rwr_func import rwr, rwr_torch
+import json
+from gemini.rwr_func import rwr, rwr_torch
 from scipy.sparse import csr_matrix, load_npz, save_npz
 from scipy.stats import moment
 
@@ -20,19 +24,19 @@ def out_string_nets(net, org):
                         'mouse': 'Mus_musculus'}
 
         binomial = org2binomial[org]
-        lst = pd.read_csv(f"data/raw/{binomial}/networks.txt",
+        lst = pd.read_csv(GEMINI_DIR + f"data/raw/{binomial}/networks.txt",
                           sep='\t').File_Name
         string_nets = []
 
     if net == 'net12':
-        data = pd.read_csv('data/raw/drug/data1.csv')
+        data = pd.read_csv(GEMINI_DIR + 'data/raw/drug/data1.csv')
         seq3 = list(data['data_source(s)'])
         seq3 = [set(item.split(',')) for item in seq3]
         string_nets = list(set([j for i in seq3 for j in i]))
         string_nets = sorted(string_nets)
         string_nets = [n+'_gm' for n in string_nets]
     elif net == 'net12_ex':
-        data = pd.read_csv('data/raw/drug/data1.csv')
+        data = pd.read_csv(GEMINI_DIR + 'data/raw/drug/data1.csv')
         seq3 = list(data['data_source(s)'])
         seq3 = [set(item.split(',')) for item in seq3]
         string_nets = list(set([j for i in seq3 for j in i]))
@@ -40,20 +44,20 @@ def out_string_nets(net, org):
         string_nets = [n+'_gm' for n in string_nets]
     elif net == 'GeneMANIA':
         for network in lst:
-            net_path = f"data/raw/{binomial}/{network}"
+            net_path = GEMINI_DIR + f"data/raw/{binomial}/{network}"
             net_name = net_path.split('/')[-1].replace('.txt', '')
             string_nets.append(net_name)
         string_nets = sorted(string_nets)
 
     elif net == 'GeneMANIA_ex':
         for network in lst:
-            net_path = f"data/raw/{binomial}/{network}"
+            net_path = GEMINI_DIR + f"data/raw/{binomial}/{network}"
             net_name = net_path.split('/')[-1].replace('.txt', '')
             string_nets.append(net_name)
         string_nets = sorted(string_nets)
         string_nets = [n+'_gm' for n in string_nets]
     elif net == 'human_drug':
-        data = pd.read_csv('data/raw/drug/data1.csv')
+        data = pd.read_csv(GEMINI_DIR + 'data/raw/drug/data1.csv')
         seq3 = list(data['data_source(s)'])
         seq3 = [set(item.split(',')) for item in seq3]
         string_nets = list(set([j for i in seq3 for j in i]))
@@ -61,7 +65,7 @@ def out_string_nets(net, org):
 
         string_nets = []
         for network in lst:
-            net_path = f"data/raw/{binomial}/{network}"
+            net_path = GEMINI_DIR + f"data/raw/{binomial}/{network}"
             net_name = net_path.split('/')[-1].replace('.txt', '')
             string_nets.append(net_name)
         string_nets = sorted(string_nets)
@@ -85,7 +89,7 @@ def out_string_nets(net, org):
                                            'coexpression',  'experimental',
                                            'database']]
         for network in lst:
-            net_path = f"data/raw/{binomial}/{network}"
+            net_path = GEMINI_DIR + f"data/raw/{binomial}/{network}"
             net_name = net_path.split('/')[-1].replace('.txt', '')+'_gm'
             string_nets.append(net_name)
         string_nets = sorted(string_nets)
@@ -114,7 +118,7 @@ def load_matrix(file_name, shape):
 
 def load_go(org, genes):
     # genes: cell array of query gene names
-    go_path = f'data/annotations/{org}'
+    go_path = GEMINI_DIR + f'data/annotations/{org}'
     go_genes = []
     go_genes = textread(f'{go_path}/{org}_go_genes.txt')
 
@@ -131,6 +135,30 @@ def load_go(org, genes):
     genemap = {ge: i for i, ge in enumerate(go_genes)}
     s2goind = [genemap[ge] for ge in np.array(genes)[filt]]
     anno[:, filt] = go_anno[:, s2goind]
+    return anno
+
+
+def load_IntAct(genes):
+    # genes is the list of queried gene _names_
+    with open(GEMINI_DIR + 'data/networks/bionic/IntAct_labels.txt', 'r') as f:
+        label_mapping = json.load(f)
+    
+    intAct_complexes = set()
+    for k in label_mapping:
+        intAct_complexes.update(label_mapping[k])
+    intAct_complexes = sorted(list(intAct_complexes))
+    print('have {} genes, {} complexes'.format(len(genes), len(intAct_complexes)))
+    
+    anno = []
+    for i, g in enumerate(genes):
+        if g not in label_mapping:
+            anno.append(np.zeros((len(intAct_complexes),)))
+        else:
+            anno.append(np.asarray([1 if intAct_complexes[j] in label_mapping[g] else 0 for j in range(len(intAct_complexes))]))
+    anno = np.stack(anno)
+    print('initial M x L shape', anno.shape)
+    anno = anno.T
+    print('result:', anno.shape)
     return anno
 
 

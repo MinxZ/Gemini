@@ -5,13 +5,18 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from evaluate_performance import evaluate_performance
 from scipy import stats
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold, train_test_split
 from torch.utils.data import (DataLoader, RandomSampler, SubsetRandomSampler,
                               TensorDataset)
 from tqdm import tqdm
+import sys
+import os
+
+sys.path.append(os.path.join(sys.path[0], '../'))
+from gemini.evaluate_performance import evaluate_performance
+
 
 np.random.seed(1)
 torch.manual_seed(1)
@@ -113,6 +118,7 @@ def cross_validation_nn(x, anno, nperm, batch_size=128,
     tensor_x = torch.Tensor(x.T).to(device)  # transform to torch tensor
     tensor_y = torch.Tensor(anno.T).to(device)
 
+    print(tensor_x.shape, tensor_y.shape)
     dataset = TensorDataset(tensor_x, tensor_y)  # create your datset
 
     (nclass, ngene) = np.shape(anno)

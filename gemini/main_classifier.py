@@ -4,9 +4,12 @@ Mingxin Zhang
 
 import argparse
 import random
-
+import sys
+import os
 import numpy as np
-from load_anno_vali import load_anno_and_cross_validation
+sys.path.append(os.path.join(sys.path[0], '../'))
+from config import GEMINI_DIR
+from gemini.load_anno_vali import load_anno_and_cross_validation
 
 
 def get_args():
@@ -52,15 +55,15 @@ def main():
     base = args.base
     seed = args.seed
     if args.mixup == 0:
-        x = np.load(f'data/embed/{embed_name}.npy')[:args.ndim, :]
+        x = np.load(GEMINI_DIR + f'data/embed/{embed_name}.npy')[:args.ndim, :]
     elif args.mixup in [1, 5]:
         # full
-        x = np.load(f'data/embed/{embed_name}.npy')
+        x = np.load(GEMINI_DIR + f'data/embed/{embed_name}.npy')
         if not args.seed == -1:
             x = x[(seed-1)*args.ndim:(seed)*args.ndim, :]
     elif args.mixup == 6:
         # average
-        x = np.load(f'data/embed/{embed_name}.npy')
+        x = np.load(GEMINI_DIR + f'data/embed/{embed_name}.npy')
         xs = np.zeros((args.ndim, x.shape[1]))
         for i in range(5):
             xs += x[i*base:i*base+args.ndim, :]
@@ -68,7 +71,7 @@ def main():
         x /= 5
     elif args.mixup == 7:
         # concatenate
-        x = np.load(f'data/embed/{embed_name}.npy')
+        x = np.load(GEMINI_DIR + f'data/embed/{embed_name}.npy')
         xs = []
         for i in range(5):
             xs.append(x[i*base:i*base+args.ndim, :])

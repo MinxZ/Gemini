@@ -7,11 +7,16 @@ import argparse
 import os
 import random
 import time
+import json
 
 import numpy as np
 import torch
 from func import out_string_nets, textread
 from mashup import load_multi, mashup, mashup_multi
+import sys
+
+sys.path.append(os.path.join(sys.path[0], '../'))
+from config import GEMINI_DIR
 
 
 def get_args():
@@ -62,11 +67,10 @@ def main():
 
     network_files = []
     for i in range(len(string_nets)):
-        network_files.append(
-            f'data/networks/{org}/{org}_string_{string_nets[i]}_adjacency.txt')
+        network_files.append(GEMINI_DIR + f'data/networks/{org}/{org}_string_{string_nets[i]}_adjacency.txt')
 
     # Load gene list
-    gene_file = f'data/networks/{org}/{org}_{net}_genes.txt'
+    gene_file = GEMINI_DIR + f'data/networks/{org}/{org}_{net}_genes.txt'
     genes = textread(gene_file)
     ngene = len(genes)
 
@@ -75,10 +79,10 @@ def main():
     print(f'{method}_{org}_{net}_{ndim}')
     print('[Mashup]')
 
-    if not os.path.exists('data/embed'):
-        os.mkdir('data/embed')
+    if not os.path.exists(GEMINI_DIR + 'data/embed'):
+        os.mkdir(GEMINI_DIR + 'data/embed')
 
-    embd_name = f'data/embed/{method}_{org}_{net}_{ndim}'
+    embd_name = GEMINI_DIR + f'data/embed/{method}_{org}_{net}_{ndim}'
 
     node_weights = None
     if args.weight > 0 and args.separate != 0:
@@ -90,7 +94,7 @@ def main():
                 iters = [args.axis]
             for axis in iters:
                 separate = np.load(
-                    f'data/separate/{net}_{org}_type0_' +
+                    GEMINI_DIR + f'data/separate/{net}_{org}_type0_' +
                     f'{embed_type}{axis}_{args.cluster_method}_' +
                     f'{args.level}.npy')
                 if args.weight == 2:
@@ -112,7 +116,6 @@ def main():
             f'separate{args.separate}_{args.cluster_method}' + \
             f'_weight{args.weight}_{args.ori_weight}'
         args.separate = None
-        print(args.level)
         embd_name += f'_{args.level}'
 
         if args.mixup > 0:

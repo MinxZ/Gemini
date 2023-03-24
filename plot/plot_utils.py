@@ -19,8 +19,8 @@ matplotlib.use('agg')
 
 
 def out_min_val(means, step=1/4):
-    min_val = np.array(means).min()
-    max_val = np.array(means).max()
+    min_val = np.asarray(means).min()
+    max_val = np.asarray(means).max()
     min_val -= (max_val - min_val)*step
     min_val = round(2*min_val, 1)/2
     min_val = 0 if min_val < 0 else min_val
@@ -209,7 +209,7 @@ def grouped_barplot(ax, nested_data, data_labels, xlabel, ylabel,
                color=[colors[i]
                       for i in range(it, len(colors), len(nested_data[0]))],
                width=0.9/len(nested_data[0]), label=labels[it] if color_legend is not None else '',
-               align='edge', ecolor='w',
+               align='edge', ecolor='black', edgecolor='black',
                yerr=None if nested_errs is None else [errs[i] for i in range(it, len(errs), len(nested_data[0]))])
     if invert_axes:
         ax.invert_yaxis()
@@ -232,6 +232,38 @@ def grouped_barplot(ax, nested_data, data_labels, xlabel, ylabel,
     # if color_legend is not None:
     #     handles, labels = ax.get_legend_handles_labels()
     #     format_legend(plt, handles, labels, loc=legend_loc)
+    
+    
+def grouped_barplot_variable_inputs(ax, nested_data, data_labels, xlabel, ylabel,
+                                    xscale='linear', yscale='linear',
+                                    min_val=0, nested_color='tab:blue',
+                                    nested_color_legend=None, nested_errs=None,
+                                    tickloc_top=True, rotangle=45, legend_loc='upper right',
+                                    anchorpoint='right', fontsize=None):
+    # in this case, let's plot one group at a time.
+    for grp in range(len(nested_data)):
+        xs = [grp + j*0.9/len(nested_data[grp]) - 0.5 for j in range(len(nested_data[grp]))]
+        ax.bar(x=xs, height=[nested_data[grp][j]-min_val for j in range(len(nested_data[grp]))],
+               bottom=[min_val for _ in range(len(nested_data[grp]))], color=nested_color[grp],
+               width=0.9/len(nested_data[grp]), align='edge', ecolor='black',
+               label=nested_color_legend[grp] if nested_color_legend is not None else None,
+               edgecolor='black', yerr=nested_errs[grp])
+        
+    if fontsize is None:
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+    else:
+        ax.set_xlabel(xlabel, fontsize=fontsize)
+        ax.set_ylabel(ylabel, fontsize=fontsize)
+    ax.set_xscale(xscale)
+    ax.set_yscale(yscale)
+    ax.set_xticks(range(len(data_labels)))
+    ax.set_xticklabels(data_labels)
+    ax.tick_params(top=tickloc_top, bottom=not tickloc_top,
+                   labeltop=tickloc_top, labelbottom=not tickloc_top)
+    if rotangle > 0:
+        plt.setp(ax.get_xticklabels(), rotation=rotangle, ha=anchorpoint,
+                 rotation_mode="anchor")
 
 
 def show_image(ax, data, xlabel, ylabel, aspect=None, cmap='bwr', xticks=[], yticks=[]):

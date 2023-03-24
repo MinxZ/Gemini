@@ -1,0 +1,10 @@
+**/human_labels.npy
+**/human_pred.npy
+**/human_testids.npy
+**/mouse_labels.npy
+**/mouse_pred.npy
+**/mouse_testids.npy
+**/yeast_labels.npy
+**/yeast_pred.npy
+**/yeast_testids.npy
+

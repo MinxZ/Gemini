@@ -1,7 +1,7 @@
 # Gemini
 Memory-efficient integration of hundreds of heterogeneous gene networks through high-order pooling
 
-## Introductoin
+## Introduction
 Gemini is a novel network integration method that uses memory-efficient high-order pooling to represent and weight each network according to its uniquenes. Gemini mitigates the uneven distribution through mixing up existing networks to create many new networks and integrates them into one representation for further tasks. 
 
 ## Repository structure

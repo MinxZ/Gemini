@@ -1,0 +1,15 @@
+*_features.tsv
+*_model.pt
+*_loss.png
+BioGrid_yeast_test*
+bionic_yeast_test*
+both_yeast_test*
+string_mouse_1gatLayer*
+string_mouse_3network*
+string_mouse_bionicDefaults*
+string_human_bionicDefaults*
+string_yeast_bionicDefaults*
+biogrid_human_test*
+biogrid_mouse_test*
+biogrid_yeast_test*
+string_yeast_default*

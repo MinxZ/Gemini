@@ -1,0 +1,1 @@
+{"time (hrs)": 0.0715048619111379, "peak CPU memory (MiB)": 970.80979347229, "peak GPU memory (MiB)": 810}

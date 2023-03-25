@@ -1,0 +1,1 @@
+{"train time (hrs)": 0.0018022031916512383, "inference time (hrs)": 0.010349819858868917, "peak CPU memory (MiB)": 31.261146545410156, "peak GPU memory (MiB)": 81}

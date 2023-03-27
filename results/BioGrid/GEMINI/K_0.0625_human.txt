@@ -1,0 +1,6 @@
+[Performance]
+Epoch None
+Accuracy: 0.579575 (stdev = 0.006274)
+F1: 0.432367 (stdev = 0.003133)
+AUPRC: 0.405477 (stdev = 0.005926)
+MAPRC: 0.074213 (stdev = 0.002163)

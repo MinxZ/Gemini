@@ -103,6 +103,34 @@ def get_species_color(sp):
     }[sp.lower()]
 
 
+def get_moment_colors(moment):
+    if type(moment) == str and moment.lower() == 'mashup':  # comparison point
+        return '#8c510a'
+    elif moment == 1:
+        return '#d8b365'
+    elif moment == 2:
+        return '#f6e8c3'
+    elif moment == 3:
+        return '#5ab4ac'
+    elif moment == 4:
+        return '#01665e'
+    raise ValueError('Unknown moment: {}'.format(moment))
+    
+
+def get_moment_naming(moment):
+    if type(moment) == str and moment.lower() == 'mashup':
+        return 'Mashup'
+    elif moment == 1:
+        return 'Mean'
+    elif moment == 2:
+        return 'Variance'
+    elif moment == 3:
+        return 'Skewness'
+    elif moment == 4:
+        return 'Kurtosis'
+    raise ValueError('Unknown moment: {}'.format(moment))
+
+
 def get_network_linestyle(net):
     return {
         'STRING': 'dashed',

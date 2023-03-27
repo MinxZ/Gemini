@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=2  # change as appropriate
+export CUDA_VISIBLE_DEVICES=0  # change as appropriate
 
 num_thread=5
 torch_thread=1
@@ -15,7 +15,7 @@ do
     
     echo Running $org
     
-    for moment in 1 2 3 4  # put 4 back in this when we're done
+    for moment in 1 2 3 4
     do
         echo "Testing pooling for ${moment} standard moment"
         OPENBLAS_NUM_THREADS=5 python gemini/main_gemini_cluster.py --embed_type Qsm${moment} --axis 1 --level network --cluster_method ap --separate 35 --run_mashup 0 --num_thread $num_thread --torch_thread $torch_thread --method gemini --net GeneMANIA_ex --ndim $ndim --org $org
@@ -25,7 +25,7 @@ do
 done
 
 echo "...moving the results"
-for org in yeast # mouse human_match
+for org in yeast mouse human_match
 do
     if [ $org = yeast ]
     then

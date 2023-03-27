@@ -17,6 +17,8 @@ Gemini is a novel network integration method that uses memory-efficient high-ord
 |
 | --- reproduce_experiments/: bash scripts to produce the results presented in the Gemini paper, including:
 |       | --- run_BioGRID_Gemini.sh: learn Gemini embeddings on the BioGRID network collection and evaluate for downstream protein function prediction.
+|       | --- run_STRING_Gemini.sh: learn Gemini embeddings on the STRING network collection and evaluate for downstream protein function prediction.
+|       | --- run_STRING+BioGRID_Gemini.sh: learn Gemini embeddings on the union of STRING and BioGRID network collections and evaluate for downstream protein function prediction.
 |
 | --- results/: saved result files for experiments.
 |

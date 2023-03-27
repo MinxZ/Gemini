@@ -22,7 +22,9 @@ Gemini is a novel network integration method that uses memory-efficient high-ord
 |
 | --- results/: saved result files for experiments.
 |
-| --- time_and_memory_study/: code for runtime and CPU/GPU ablation in the Gemini paper. --- data/: store all networks files and representation files.
+| --- time_and_memory_study/: code for runtime and CPU/GPU ablation in the Gemini paper.
+|
+| --- data/: store all networks files and representation files.
 |       | --- raw/:
 |           | --- mashup_networks
 |               | --- human: STRING networks for human

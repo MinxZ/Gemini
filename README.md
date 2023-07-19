@@ -4,9 +4,16 @@ Memory-efficient integration of hundreds of heterogeneous gene networks through 
 ## Introduction
 Gemini is a novel network integration method that uses memory-efficient high-order pooling to represent and weight each network according to its uniqueness. Gemini mitigates the uneven distribution of biological signal by through up existing networks to create many new networks and then produces integrated gene embeddings for downstream tasks. 
 
+Gemini's unsupervised embeddings trained on the combination of STRING and BioGRID from GeneMANIA datasets are available as .h5ad files in ``embeddings_off_the_shelf/`` for yeast, mouse, and human. The files can be loaded in python with the anndata package or other h5ad processing software.
+
 ## Repository structure
 ```
 | Gemini/
+|
+| --- embeddings_off_the_shelf/: pre-trained embeddings from Gemini trained on the integrated STRING and BioGRID datasets.
+|       | --- human_integrated_embeddings.h5ad: 400-dimensional embeddings for each human gene in STRING and BioGRID.
+|       | --- mouse_integrated_embeddings.h5ad: 400-dimensional embeddings for each mouse gene in STRING and BioGRID.
+|       | --- yeast_integrated_embeddings.h5ad: 200-dimensional embeddings for each yeast gene in STRING and BioGRID.
 |
 | --- gemini/: experimental code for the STRING and BioGRID dataset, including:
 |       | --- main_gemini.py: run RWR(random walk with restart) on all networks and get rwr matrix for each network and one integrated embedding 
@@ -17,10 +24,14 @@ Gemini is a novel network integration method that uses memory-efficient high-ord
 |
 | --- reproduce_experiments/: bash scripts to produce the results presented in the Gemini paper, including:
 |       | --- run_BioGRID_Gemini.sh: learn Gemini embeddings on the BioGRID network collection and evaluate for downstream protein function prediction.
+|       | --- run_STRING_Gemini.sh: learn Gemini embeddings on the STRING network collection and evaluate for downstream protein function prediction.
+|       | --- run_STRING+BioGRID_Gemini.sh: learn Gemini embeddings on the union of STRING and BioGRID network collections and evaluate for downstream protein function prediction.
 |
 | --- results/: saved result files for experiments.
 |
-| --- time_and_memory_study/: code for runtime and CPU/GPU ablation in the Gemini paper. --- data/: store all networks files and representation files.
+| --- time_and_memory_study/: code for runtime and CPU/GPU ablation in the Gemini paper.
+|
+| --- data/: store all networks files and representation files.
 |       | --- raw/:
 |           | --- mashup_networks
 |               | --- human: STRING networks for human

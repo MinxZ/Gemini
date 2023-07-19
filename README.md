@@ -4,9 +4,16 @@ Memory-efficient integration of hundreds of heterogeneous gene networks through 
 ## Introduction
 Gemini is a novel network integration method that uses memory-efficient high-order pooling to represent and weight each network according to its uniqueness. Gemini mitigates the uneven distribution of biological signal by through up existing networks to create many new networks and then produces integrated gene embeddings for downstream tasks. 
 
+Gemini's unsupervised embeddings trained on the combination of STRING and BioGRID from GeneMANIA datasets are available as .h5ad files in ``embeddings_off_the_shelf/`` for yeast, mouse, and human. The files can be loaded in python with the anndata package or other h5ad processing software.
+
 ## Repository structure
 ```
 | Gemini/
+|
+| --- embeddings_off_the_shelf/: pre-trained embeddings from Gemini trained on the integrated STRING and BioGRID datasets.
+|       | --- human_integrated_embeddings.h5ad: 400-dimensional embeddings for each human gene in STRING and BioGRID.
+|       | --- mouse_integrated_embeddings.h5ad: 400-dimensional embeddings for each mouse gene in STRING and BioGRID.
+|       | --- yeast_integrated_embeddings.h5ad: 200-dimensional embeddings for each yeast gene in STRING and BioGRID.
 |
 | --- gemini/: experimental code for the STRING and BioGRID dataset, including:
 |       | --- main_gemini.py: run RWR(random walk with restart) on all networks and get rwr matrix for each network and one integrated embedding 
